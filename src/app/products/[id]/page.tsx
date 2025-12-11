@@ -143,11 +143,15 @@ export async function generateMetadata({ params }: { params: Promise<Params> }) 
 
 interface PageProps {
   params: Promise<Params>;
-  searchParams?: { [key: string]: string | string[] | undefined };
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function ProductPage({ params, searchParams }: PageProps) {
   const { id } = await params;
+  // Await searchParams to satisfy Next.js types; not used yet
+  if (searchParams) {
+    await searchParams;
+  }
   const productId = extractIdFromSlug(id);
   const product = typeof productId === 'number' 
     ? products.find(p => p.id === productId)
