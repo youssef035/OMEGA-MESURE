@@ -6,7 +6,7 @@ import { extractIdFromSlug } from '@/utils/slugify';
 
 interface PageProps {
   params: Promise<{ id: string }>;
-  searchParams?: { [key: string]: string | string[] | undefined };
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -24,6 +24,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function ServicePage({ params, searchParams }: PageProps) {
   const { id } = await params;
+  // Await searchParams to satisfy Next.js 15 dynamic route types; value unused for now
+  if (searchParams) {
+    await searchParams;
+  }
   const serviceId = extractIdFromSlug(id);
   const service = typeof serviceId === 'number' ? services.find(s => s.id === serviceId) : undefined;
 
