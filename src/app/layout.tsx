@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import WhatsAppButton from "./components/WhatsAppButton";
+import Navbar from "./components/Navbar";
 import { LanguageProvider } from "./context/LanguageContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -61,6 +62,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <ErrorBoundary>
           <LanguageProvider>
+            <Navbar />
             <main className="min-h-screen bg-white">
               {children}
             </main>

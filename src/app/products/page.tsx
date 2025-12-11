@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '../context/LanguageContext';
+import { buildSlugWithId } from '@/utils/slugify';
 
 interface Product {
   id: number;
@@ -157,11 +158,16 @@ export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<'all' | 'product' | 'service' | 'balance_et_indicateur' | 'plateforme_de_pesage'>('all');
 
-  const filteredItems = products.filter(item => {
+const filteredItems = products.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = filter === 'all' || item.categories.includes(filter);
     return matchesSearch && matchesFilter;
   });
+
+  const resolveHref = (item: Product) =>
+    item.categories.includes('service')
+      ? `/services/${buildSlugWithId(item.id, item.name)}`
+      : `/products/${buildSlugWithId(item.id, item.name)}`;
 
   return (
     <div className="min-h-screen bg-white">
@@ -291,7 +297,7 @@ export default function ProductsPage() {
                 </h3>
                 <p className="text-secondary-600 mb-4 line-clamp-2">{item.description}</p>
                 <a 
-                  href={`/products/${item.id}`}
+                  href={resolveHref(item)}
                   className="w-full bg-primary-600 text-white py-2 rounded-md hover:bg-primary-700 transition-colors block text-center mt-auto"
                 >
                   {t('products.viewDetails')}

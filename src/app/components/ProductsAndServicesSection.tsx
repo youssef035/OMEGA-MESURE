@@ -4,6 +4,7 @@ import React, { useRef, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '../context/LanguageContext';
 import RevealOnScroll from './RevealOnScroll';
+import { buildSlugWithId } from '@/utils/slugify';
 
 interface Product {
   id: number;
@@ -216,6 +217,11 @@ export default function ProductsAndServicesSection({ id }: { id: string }) {
     return matchesSearch && matchesFilter;
   });
 
+  const resolveHref = (item: Product) =>
+    item.categories.includes('service')
+      ? `/services/${buildSlugWithId(item.id, item.name)}`
+      : `/products/${buildSlugWithId(item.id, item.name)}`;
+
   return (
     <section id={id} className="py-20 bg-white" aria-label="Produits et Services">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -349,7 +355,7 @@ export default function ProductsAndServicesSection({ id }: { id: string }) {
                     <h3 className="text-xl font-semibold text-primary-900 mb-2">{item.name}</h3>
                     <p className="text-secondary-600 mb-4 line-clamp-2">{item.description}</p>
                     <a 
-                      href={`/products/${item.id}`}
+                      href={resolveHref(item)}
                       className="bg-primary-600 text-white w-full py-2 rounded-md hover:bg-primary-700 transition-colors block text-center mt-auto"
                       aria-label={`View details for ${item.name}`}
                     >

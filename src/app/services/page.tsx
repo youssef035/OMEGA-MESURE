@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { services } from '@/data/services';
+import { buildSlugWithId } from '@/utils/slugify';
 
 export default function ServicesPage() {
   return (
@@ -24,7 +25,7 @@ export default function ServicesPage() {
                 <h2 className="text-xl font-semibold text-primary-900 mb-2">{service.name}</h2>
                 <p className="text-gray-600 mb-4">{service.description}</p>
                 <Link
-                  href={`/services/${service.id}`}
+                  href={`/services/${buildSlugWithId(service.id, service.name)}`}
                   className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition-colors inline-block"
                 >
                   Voir les détails

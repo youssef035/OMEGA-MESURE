@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import ProductDetails from './ProductDetails';
+import { extractIdFromSlug } from '@/utils/slugify';
 
 interface Product {
   id: number;
@@ -123,9 +124,14 @@ const products: Product[] = [
   }
 ];
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
-  const productId = parseInt(params.id);
-  const product = products.find(p => p.id === productId);
+type Params = { id: string };
+
+export async function generateMetadata({ params }: { params: Promise<Params> }) {
+  const { id } = await params;
+  const productId = extractIdFromSlug(id);
+  const product = typeof productId === 'number' 
+    ? products.find(p => p.id === productId)
+    : undefined;
   if (!product) {
     return { title: 'Produit non trouvé | OmegaMesure' };
   }
@@ -136,13 +142,16 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
 }
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<Params>;
   searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export default function ProductPage({ params, searchParams }: PageProps) {
-  const productId = parseInt(params.id);
-  const product = products.find(p => p.id === productId);
+export default async function ProductPage({ params, searchParams }: PageProps) {
+  const { id } = await params;
+  const productId = extractIdFromSlug(id);
+  const product = typeof productId === 'number' 
+    ? products.find(p => p.id === productId)
+    : undefined;
 
   if (!product) {
     return (

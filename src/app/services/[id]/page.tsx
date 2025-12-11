@@ -2,15 +2,17 @@ import React from 'react';
 import Link from 'next/link';
 import ServiceDetails from './ServiceDetails';
 import { services } from '@/data/services';
+import { extractIdFromSlug } from '@/utils/slugify';
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
   searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
-  const serviceId = parseInt(params.id);
-  const service = services.find(s => s.id === serviceId);
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const serviceId = extractIdFromSlug(id);
+  const service = typeof serviceId === 'number' ? services.find(s => s.id === serviceId) : undefined;
   if (!service) {
     return { title: 'Service non trouvé | OmegaMesure' };
   }
@@ -20,9 +22,10 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   };
 }
 
-export default function ServicePage({ params, searchParams }: PageProps) {
-  const serviceId = parseInt(params.id);
-  const service = services.find(s => s.id === serviceId);
+export default async function ServicePage({ params, searchParams }: PageProps) {
+  const { id } = await params;
+  const serviceId = extractIdFromSlug(id);
+  const service = typeof serviceId === 'number' ? services.find(s => s.id === serviceId) : undefined;
 
   if (!service) {
     return (
