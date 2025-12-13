@@ -1,36 +1,47 @@
+# =========================
 # Build stage
+# =========================
 FROM node:20-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Install dependencies
+# Install dependencies (no dev cache)
 RUN npm ci
 
-# Copy the rest of the application
+# Copy source
 COPY . .
 
-# Build the application
+# Build Next.js app
 RUN npm run build
 
-# Production stage
+
+# =========================
+# Runtime stage (HARDENED)
+# =========================
 FROM node:20-alpine AS runner
+
+# Create non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 WORKDIR /app
 
-# Set environment to production
 ENV NODE_ENV=production
 
-# Copy necessary files from builder
+# Copy only required build output
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Expose the port the app runs on
+# Set correct permissions
+RUN chown -R appuser:appgroup /app
+
+# Switch to non-root user
+USER appuser
+
 EXPOSE 3000
 
-# Start the application
-CMD ["node", "server.js"] 
+# Start app
+CMD ["node", "server.js"]
